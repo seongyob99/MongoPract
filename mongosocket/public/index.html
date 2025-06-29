@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>실시간 메시지판</title>
+</head>
+<body>
+  <h2>실시간 메시지 남기기</h2>
+  <input type="text" id="messageInput" placeholder="메시지를 입력하세요" />
+  <button onclick="sendMessage()">보내기</button>
+
+  <ul id="messageList"></ul>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    const input = document.getElementById("messageInput");
+    const list = document.getElementById("messageList");
+
+    function sendMessage() {
+      const msg = input.value;
+      if (msg) {
+        socket.emit("chat message", msg);
+        input.value = "";
+      }
+    }
+
+    socket.on("chat message", (msg) => {
+      const li = document.createElement("li");
+      li.textContent = msg;
+      list.appendChild(li);
+    });
+  </script>
+</body>
+</html>
