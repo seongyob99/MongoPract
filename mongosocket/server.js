@@ -18,6 +18,28 @@ const Message = mongoose.model("Message", new mongoose.Schema({
   timestamp: { type: Date, default: Date.now },
 }));
 
+app.get("/stats/recent-count", async (req, res) => {
+  try {
+    const result = await Message.aggregate([
+      {
+        $match: {
+          timestamp: {
+            $gte: new Date(Date.now() - 60 * 60 * 1000) // 최근 1시간
+          }
+        }
+      },
+      {
+        $count: "recentMessages"
+      }
+    ]);
+
+    res.json(result[0] || { recentMessages: 0 });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "집계 실패" });
+  }
+});
+
 app.use(express.static(path.join(__dirname, "public")));
 
 io.on("connection", (socket) => {

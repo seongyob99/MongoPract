@@ -8,15 +8,16 @@
   <h2>실시간 메시지 남기기</h2>
   <input type="text" id="messageInput" placeholder="메시지를 입력하세요" />
   <button onclick="sendMessage()">보내기</button>
+  <h3 id="stats">최근 1시간 메시지 수: 로딩 중...</h3>
 
   <ul id="messageList"></ul>
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
     const socket = io();
-
     const input = document.getElementById("messageInput");
     const list = document.getElementById("messageList");
+    const stats = document.getElementById("stats");
 
     function sendMessage() {
       const msg = input.value;
@@ -31,6 +32,18 @@
       li.textContent = msg;
       list.appendChild(li);
     });
+
+    async function loadStats() {
+    try {
+      const res = await fetch("/stats/recent-count");
+      const data = await res.json();
+      stats.textContent = `최근 1시간 메시지 수: ${data.recentMessages}`;
+    } catch (err) {
+      stats.textContent = "통계 불러오기 실패";
+    }
+  }
+  
+  loadStats(); // 페이지 로드시 1번 호출
   </script>
 </body>
 </html>
